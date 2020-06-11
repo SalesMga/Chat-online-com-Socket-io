@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="widht=device-widht, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <form id="chat">
+        <input type="text" name="username" placeholder="Digite seu usuário">
+
+        <div class="messages"></div>
+
+        <input type="text" name="message" placeholder="Digite sua mensagem">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script type="text/javascript"> //1° conectar com o socket do backend
+        var socket = io('http://localhost:3000'); //aqui ja esta ouvindo conexao via socket, como socket esta no mesmo endereço posso usar a mesma url
+
+        //function para renderizar mensagem dentro da div class
+        function renderMessage(message) {
+            $('.messages').append('<div class="message"><strong>' + message.author + '</strong>:' + message.message + '</div>')
+        }
+
+        //pega as message dentro do array armazenas local e renderiza, dai nao somen quando der um f5
+        socket.on('previousMessage', function(messages){
+            for(message of messages){
+                renderMessage(message);
+            }
+        });
+
+        //ouvir o receivedMessage
+        socket.on('receivedMessage', function(message) {
+            renderMessage(message);
+        });
+
+        //verifica quando o chat é submitado
+        $('#chat').submit(function (event) {
+            event.preventDefault(); //para ñ enviar formulario e dar f5 na tela e some tudo
+
+            var author = $('input[name=username]').val();
+            var message = $('input[name=message]').val();
+
+            if (author.length && message.length) { // vamos enviar um objeto por  websocket
+                var messageObject = { //armazena os inputs em um objeto
+                    author: author,
+                    message: message,
+                };
+
+                renderMessage(messageObject);//renderiza na na tela campo div os dados digitados
+
+                socket.emit('sendMessage', messageObject); //enviando nosso messageObject para o backend socket
+            }
+        })
+    </script>
+</body>
+
+</html>
