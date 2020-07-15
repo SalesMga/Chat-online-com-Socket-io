@@ -26,7 +26,7 @@ io.on('connection', socket => {
 
     socket.on('sendMessage', data => { //aqui no backend recebo o emit e faço a tratativa, socket.on ouve os emit..
         messages.push(data); //armazena localmente na var messages
-        socket.broadcast.emit('receivedMessage', data); // broacast envia para todos os sockets conectados na aplicacao, dai manda para todos conectados na aplicacao esse receivedMessage com os dados
+        socket.broadcast.emit('receivedMessage', data); // broacast envia esses dados para todos os sockets conectados na aplicacao, e renderiza em tela 
     });
 });
 
